@@ -10,7 +10,7 @@ Given
 
 * **Backbone** – a reference **PDB** file  
 * **Sequence** – the corresponding amino-acid string (FASTA or plain text)  
-* **Functional site** – one or more residue indices (0-indexed)
+* **Functional sites** – one or more residue indices (0-indexed)
 
 the sampler builds a **diverse, high-quality library** of candidate sequences in a
 single call
