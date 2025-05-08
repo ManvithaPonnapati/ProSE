@@ -33,7 +33,8 @@ poetry install
 
 ## 🧪 Sample
 
-``` python run_sampler.py \
+```
+python run_sampler.py \
     --pdb   2mjs.pdb \
     --seq   "MGTFFAKRLILV" \
     --sites 45 86 123 \
