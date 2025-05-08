@@ -31,6 +31,17 @@ pip install -e .
 poetry install
 ```
 
+## 🧪 Sample
+
+``` python run_sampler.py \
+    --pdb   2mjs.pdb \
+    --seq   "MGTFFAKRLILV" \
+    --sites 45 86 123 \
+    --k     128 \
+    --out    library.fasta
+```
+
+
 # Acknowledgement 
 
 The development of this tool was made possible by a generous grant from **Homeward Bio**
