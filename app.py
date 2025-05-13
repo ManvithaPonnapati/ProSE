@@ -151,7 +151,7 @@ def show_st_3dmol(
     showmol(view, height=height, width=width)
 
 st.set_page_config(page_title="PaperQA Protein Annotation", layout="wide")
-st.title("🧬 Protein annotation with PaperQA")
+st.title("🧬 Protein Residue Annotation with PaperQA")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Top-of-page selector (replaces sidebar)
