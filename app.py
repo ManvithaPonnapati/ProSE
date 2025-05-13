@@ -15,13 +15,13 @@ DATA_PATH = Path("/workspaces/ProSE/")   # directory that holds app.py
 anno_csv = "/workspaces/ProSE/climate_enzymes_residue_annotations.csv"
 desc_csv = "/workspaces/ProSE/climate_enzymes.csv"
 
-# fail loudly if either file is missing ---------------------------------------
-if not anno_csv.exists() or not desc_csv.exists():
-    missing = " and ".join(
-        [f"**`{p.name}`**" for p in (anno_csv, desc_csv) if not p.exists()]
-    )
-    st.error(f"💥  Required data file(s) {missing} not found next to `app.py`.")
-    st.stop()
+# # fail loudly if either file is missing ---------------------------------------
+# if not anno_csv.exists() or not desc_csv.exists():
+#     missing = " and ".join(
+#         [f"**`{p.name}`**" for p in (anno_csv, desc_csv) if not p.exists()]
+#     )
+#     st.error(f"💥  Required data file(s) {missing} not found next to `app.py`.")
+#     st.stop()
 
 anno_df = pd.read_csv(anno_csv).fillna("")
 desc_df = pd.read_csv(desc_csv).fillna("")
