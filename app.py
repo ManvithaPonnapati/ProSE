@@ -12,8 +12,8 @@ from pathlib import Path
 ###############################################################################
 DATA_PATH = Path("/workspaces/ProSE/")   # directory that holds app.py
 
-anno_csv = "/workspaces/ProSE/climate_enzymes_residue_annotations.csv"
-desc_csv = "/workspaces/ProSE/climate_enzymes.csv"
+anno_csv = "climate_enzymes_residue_annotations.csv"
+desc_csv = "climate_enzymes.csv"
 
 # # fail loudly if either file is missing ---------------------------------------
 # if not anno_csv.exists() or not desc_csv.exists():
