@@ -1,11 +1,15 @@
+import math
 import os
 import tempfile
 import urllib.request
+
 import biotite.structure as struc
 from biotite.sequence import ProteinSequence
 from biotite.structure import AtomArray
 from biotite.structure.io import pdb
+
 from prose.utils.api_call import post_sample_request, MPNN_URL
+
 
 class Structure:
     def __init__(
@@ -45,7 +49,7 @@ class Structure:
     @classmethod
     def from_pdb_file(cls, pdb_file_path, chain_id):
         temp_file_path = tempfile.NamedTemporaryFile(delete=False, mode="w+", suffix=".pdb")
-        atom_array = pdb.PDBFile.read(pdb_file_path).get_structure(model=1)
+        atom_array = pdb.PDBFile.read(pdb_file_path).get_structure(model=1,extra_fields=["b_factor"])
         atom_array = atom_array[struc.filter_amino_acids(atom_array)]
         if chain_id:
             atom_array = atom_array[atom_array.chain_id == chain_id]
@@ -77,7 +81,6 @@ class Structure:
             "batch": int(num_samples),
             "chains": self.chain_id
         }
-        print(f"MPNN config: {mpnn_config}")
         mpnn_prediction_json = await post_sample_request(
             f"{MPNN_URL}/sample",
             {
@@ -93,5 +96,23 @@ class Structure:
         """
         return self.structure.coord
 
+    def get_pairwise_distance(self,residue_idxs):
+        """
+        Get the pairwise distance between the residues in the structure.
+        """
+        if len(residue_idxs) < 2:
+            raise ValueError("At least two residue indices are required to calculate pairwise distances.")
+        ca_structure = self.structure[self.structure.atom_name == "CA"]
+        coords = ca_structure[residue_idxs]
+        pairwise_distances = []
+        for i in range(len(coords)):
+            for j in range(i + 1, len(coords)):
+                dist = math.sqrt(
+                    sum((coords[i].coord[k] - coords[j].coord[k]) ** 2 for k in range(3))
+                )
+                pairwise_distances.append((i, j, dist))
+        return pairwise_distances
 
 
+    def average_b_factor(self):
+        return float(self.structure.b_factor.mean())

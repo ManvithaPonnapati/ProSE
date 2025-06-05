@@ -18,22 +18,11 @@ from modal import gpu
 auth_scheme = HTTPBearer()
 
 
-def validate_token(
-        credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),  # noqa: B008
-) -> str:
-    if not secrets.compare_digest(credentials.credentials, "hgtaaproteindesign2025"):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect bearer token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return credentials.credentials
-
 
 # need larger memory GPU here
 gpu_config = gpu.A100(count=1)
 app = App("colabfold")
-web_app = FastAPI(dependencies=[Depends(validate_token)])
+web_app = FastAPI()
 
 image = (
     Image.debian_slim(python_version="3.11")
@@ -110,6 +99,14 @@ def fold_monomer_with_colabfold(
         user_agent="colabfold/google-colab-main"
     )
     all_files = list(os.listdir(out_dir))
+    print(all_files,jobname)
+    scores = None
+    for file in all_files:
+        if file.startswith(f"{jobname}_scores_rank_001"):
+            with open(os.path.join(out_dir, file)) as f:
+                scores = json.load(f)
+            break
+    plddt_score = scores["plddt"]
     pdb_str = "Failed to generate structure."
     for file in all_files:
         if file.endswith(".pdb") and "model" in file:
@@ -119,7 +116,7 @@ def fold_monomer_with_colabfold(
             pdb_str = Path(os.path.join(out_dir, file)).read_text()
             temp_pdb_file.write(pdb_str)
             temp_pdb_file.flush()
-    return {"predicted_output": pdb_str}
+    return {"predicted_output": pdb_str,"plddt": plddt_score}  # noqa: F821
 
 
 @app.function(
