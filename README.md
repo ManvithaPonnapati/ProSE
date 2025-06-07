@@ -21,8 +21,8 @@ you can install the package straight from the source tree:
 
 ```bash
 # clone
-git clone https://github.com/<your-username>/protein-backbone-sampler.git
-cd protein-backbone-sampler
+git clone https://github.com/<your-username>/prose.git
+cd prose
 
 # install 
 pip install -e .         
@@ -32,15 +32,6 @@ poetry install
 ```
 
 ## 🧪 Sample
-
-```
-python run_sampler.py \
-    --pdb   2mjs.pdb \
-    --seq   "MGTFFAKRLILV" \
-    --sites 45 86 123 \
-    --k     128 \
-    --out    library.fasta
-```
 
 
 # Acknowledgement 
