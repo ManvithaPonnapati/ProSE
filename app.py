@@ -15,8 +15,8 @@ import os
 ###############################################################################
 DATA_PATH = Path("/workspaces/ProSE/app_data/")   # directory that holds app.py
 
-anno_csv = "/workspaces/ProSE/app_data/climate_enzymes_residue_annotations.csv"
-desc_csv = "/workspaces/ProSE/app_data/climate_enzymes.csv"
+anno_csv = "app_data/climate_enzymes_residue_annotations.csv"
+desc_csv = "app_data/climate_enzymes.csv"
 
 # # fail loudly if either file is missing ---------------------------------------
 # if not anno_csv.exists() or not desc_csv.exists():
@@ -35,7 +35,7 @@ desc_df = pd.read_csv(desc_csv).fillna("")
 def read_fasta_sequences(pdb_id):
     """Read MPNN designed sequences for a given PDB ID"""
     sequences = []
-    designed_seq_path = f"/workspaces/ProSE/app_data/designed_sequences/"
+    designed_seq_path = f"app_data/designed_sequences/"
     
     # Look for FASTA files matching the pattern
     pattern = f"{designed_seq_path}{pdb_id}_*_mpnn_temp_*.fasta"
