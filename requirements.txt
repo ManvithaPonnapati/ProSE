@@ -1,3 +1,4 @@
 ipython_genutils
 py3Dmol
 stmol
+biopython
