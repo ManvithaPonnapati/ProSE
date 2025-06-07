@@ -246,7 +246,7 @@ with left:
                 if chips:
                     st.markdown(chips)
 
-                with st.expander("Full LLM answer", expanded=False):
+                with st.expander("Full PaperQA2 answer", expanded=False):
                     st.markdown(r.original_answer)
 
         # start a new row every n_cols cards
@@ -320,7 +320,7 @@ if designed_sequences:
             hide_index=True
         )
     
-    # Add analysis placeholder section
+    # Add analysis placeholder section 
     st.markdown("### 📊 Analysis Pipeline")
     st.info("""
     **Analysis:**
