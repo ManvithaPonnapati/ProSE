@@ -6,6 +6,9 @@ import pandas as pd
 import py3Dmol
 from stmol import showmol
 from pathlib import Path
+import glob
+from Bio import SeqIO
+import os
 
 ###############################################################################
 #  Read the two CSV files ------------------------------------------------------
@@ -25,6 +28,37 @@ desc_csv = "/workspaces/ProSE/app_data/climate_enzymes.csv"
 
 anno_df = pd.read_csv(anno_csv).fillna("")
 desc_df = pd.read_csv(desc_csv).fillna("")
+
+###############################################################################
+#  Function to read FASTA sequences -------------------------------------------
+###############################################################################
+def read_fasta_sequences(pdb_id):
+    """Read MPNN designed sequences for a given PDB ID"""
+    sequences = []
+    designed_seq_path = f"/workspaces/ProSE/app_data/designed_sequences/"
+    
+    # Look for FASTA files matching the pattern
+    pattern = f"{designed_seq_path}{pdb_id}_*_mpnn_temp_*.fasta"
+    fasta_files = glob.glob(pattern)
+    
+    for fasta_file in fasta_files:
+        filename = os.path.basename(fasta_file)
+        # Extract temperature from filename
+        temp = filename.split('temp_')[1].split('.fasta')[0] if 'temp_' in filename else 'unknown'
+        
+        try:
+            for record in SeqIO.parse(fasta_file, "fasta"):
+                sequences.append({
+                    'Sequence_ID': record.id,
+                    'Temperature': temp,
+                    'Sequence': str(record.seq),
+                    'Length': len(record.seq),
+                    'Filename': filename
+                })
+        except Exception as e:
+            st.warning(f"Could not read {filename}: {str(e)}")
+    
+    return sequences
 
 ###############################################################################
 #  Pretty-print helpers --------------------------------------------------------
@@ -173,13 +207,13 @@ with left:
     st.markdown(
         f"""
 ### **{desc_row['protein_name']}**
-**PDB:** `{desc_row['pdb_id']}` | **Chain:** `{desc_row['chain']}`  
+**PDB:** `{desc_row['pdb_id']}` | **Chain:** `{desc_row['chain']}`  
 
 {desc_row['description']}
 """
     )
 
-    # Residue “cards” in a responsive grid
+    # Residue "cards" in a responsive grid
     n_cols   = 3
     card_row = st.columns(n_cols, gap="small")
 
@@ -205,7 +239,7 @@ with left:
                     "Ligand binding": r.ligand_binding_site,
                     "Allosteric site": r.allosteric_site,
                 }
-                chips = "  ".join(
+                chips = "  ".join(
                     f"✅ *{name}*" for name, val in flags.items()
                     if str(val).upper() == "TRUE"
                 )
@@ -229,3 +263,90 @@ with right:
         width=300,
         height=300,
     )
+
+###############################################################################
+#  MPNN Designed Sequences Section --------------------------------------------
+###############################################################################
+st.markdown("---")
+st.header("🧪 MPNN Designed Sequences")
+
+# Read designed sequences for the current PDB
+designed_sequences = read_fasta_sequences(current_pdb)
+
+if designed_sequences:
+    # Create DataFrame with designed sequences
+    seq_df = pd.DataFrame(designed_sequences)
+    
+    # Add empty columns for the requested analyses
+    seq_df['Salt_Bridges'] = ''
+    seq_df['H_Bonds'] = ''
+    seq_df['Secondary_Structure'] = ''
+    seq_df['Radius_of_Gyration'] = ''
+    seq_df['ESM2_Log_Likelihood'] = ''
+    seq_df['AlphaFold2_Confidence'] = ''
+    seq_df['Boltz1_Structure_Prediction'] = ''
+    seq_df['Evolutionary_Consensus'] = ''
+    seq_df['Rosetta_Stability_ddG'] = ''
+    
+    # Reorder columns for better display
+    display_columns = [
+        'Sequence_ID', 'Temperature', 'Length', 'Sequence',
+        'Salt_Bridges', 'H_Bonds', 'Secondary_Structure', 
+        'Radius_of_Gyration', 'ESM2_Log_Likelihood', 
+        'AlphaFold2_Confidence', 'Boltz1_Structure_Prediction',
+        'Evolutionary_Consensus', 'Rosetta_Stability_ddG'
+    ]
+    
+    # Display summary
+    st.markdown(f"**Found {len(designed_sequences)} designed sequences for PDB {current_pdb}**")
+    
+    # Group by temperature if multiple temperatures exist
+    if len(seq_df['Temperature'].unique()) > 1:
+        st.markdown("**Sequences grouped by temperature:**")
+        for temp in sorted(seq_df['Temperature'].unique()):
+            temp_subset = seq_df[seq_df['Temperature'] == temp]
+            st.markdown(f"*Temperature: {temp}*")
+            st.dataframe(
+                temp_subset[display_columns],
+                use_container_width=True,
+                hide_index=True
+            )
+            st.markdown("")
+    else:
+        # Display all sequences in one table
+        st.dataframe(
+            seq_df[display_columns],
+            use_container_width=True,
+            hide_index=True
+        )
+    
+    # Add analysis placeholder section
+    st.markdown("### 📊 Analysis Pipeline")
+    st.info("""
+    **Analysis:**
+    - **ProDy Analysis**: Salt bridges and hydrogen bonds calculation
+    - **Secondary Structure**: DSSP-based structure prediction
+    - **Radius of Gyration**: Structural compactness measurement
+    - **ESM2 Log Likelihood**: Sequence probability scoring
+    - **AlphaFold2 Confidence**: Structure prediction confidence
+    - **Boltz-1 Structure Prediction**: Protein-ligand complex prediction
+    - **Evolutionary Consensus**: Conservation analysis
+    - **Rosetta Stability ddG**: Thermodynamic stability prediction
+    """)
+    st.markdown("### 📊 Experimental Library Selection")
+    
+else:
+    st.warning(f"No designed sequences found for PDB {current_pdb}. Expected files matching pattern: `/workspaces/ProSE/app_data/designed_sequences/{current_pdb}_*_mpnn_temp_*.fasta`")
+    
+    # Show what files are available
+    designed_seq_path = "/workspaces/ProSE/app_data/designed_sequences/"
+    if os.path.exists(designed_seq_path):
+        available_files = os.listdir(designed_seq_path)
+        if available_files:
+            st.markdown("**Available files in designed_sequences directory:**")
+            for file in sorted(available_files):
+                st.markdown(f"- {file}")
+        else:
+            st.markdown("*No files found in designed_sequences directory*")
+    else:
+        st.error(f"Directory {designed_seq_path} does not exist")
