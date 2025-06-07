@@ -16,7 +16,7 @@ the sampler builds a **diverse, high-quality library** of candidate sequences in
 single call
 
 ## 🏗️ Installation
-Because all build-time metadata and dependencies live in **`pyproject.toml`** (PEP 621),
+Because all build-time metadata and dependencies live in **`pyproject.toml`** ,
 you can install the package straight from the source tree:
 
 ```bash
