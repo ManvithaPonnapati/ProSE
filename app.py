@@ -10,7 +10,7 @@ from pathlib import Path
 ###############################################################################
 #  Read the two CSV files ------------------------------------------------------
 ###############################################################################
-DATA_PATH = Path("/workspaces/ProSE/")   # directory that holds app.py
+DATA_PATH = Path("/workspaces/ProSE/app_data/")   # directory that holds app.py
 
 anno_csv = "climate_enzymes_residue_annotations.csv"
 desc_csv = "climate_enzymes.csv"
