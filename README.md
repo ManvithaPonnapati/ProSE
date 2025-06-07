@@ -36,4 +36,4 @@ poetry install
 
 # Acknowledgement 
 
-The development of this tool was made possible by a generous grant from **Homeward Bio**
+The development of this tool was made possible by a grant from **Homeward Bio**
